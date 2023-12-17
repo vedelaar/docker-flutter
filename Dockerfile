@@ -3,15 +3,18 @@ FROM ubuntu:20.04
 ENV UID=1000
 ENV GID=1000
 ENV USER="developer"
-ENV JAVA_VERSION="8"
+ENV JAVA_VERSION="17"
 ENV ANDROID_TOOLS_URL="https://dl.google.com/android/repository/commandlinetools-linux-6858069_latest.zip"
 ENV ANDROID_VERSION="29"
 ENV ANDROID_BUILD_TOOLS_VERSION="29.0.3"
 ENV ANDROID_ARCHITECTURE="x86_64"
 ENV ANDROID_SDK_ROOT="/home/$USER/android"
-ENV FLUTTER_CHANNEL="dev"
-ENV FLUTTER_VERSION="2.3.0-16.0.pre"
-ENV FLUTTER_URL="https://storage.googleapis.com/flutter_infra/releases/$FLUTTER_CHANNEL/linux/flutter_linux_$FLUTTER_VERSION-$FLUTTER_CHANNEL.tar.xz"
+ENV FLUTTER_CHANNEL="stable"
+ENV FLUTTER_VERSION="3.10.0"
+# version < 3
+#ENV FLUTTER_URL="https://storage.googleapis.com/flutter_infra/releases/$FLUTTER_CHANNEL/linux/flutter_linux_$FLUTTER_VERSION-$FLUTTER_CHANNEL.tar.xz"
+# version >= 3
+ENV FLUTTER_URL="https://storage.googleapis.com/flutter_infra_release/releases/$FLUTTER_CHANNEL/linux/flutter_linux_$FLUTTER_VERSION-$FLUTTER_CHANNEL.tar.xz"
 ENV FLUTTER_HOME="/home/$USER/flutter"
 ENV FLUTTER_WEB_PORT="8090"
 ENV FLUTTER_DEBUG_PORT="42000"
@@ -50,19 +53,19 @@ RUN mkdir -p $ANDROID_SDK_ROOT \
   && yes "y" | sdkmanager "system-images;android-$ANDROID_VERSION;google_apis_playstore;$ANDROID_ARCHITECTURE"
 
 # flutter
-RUN curl -o flutter.tar.xz $FLUTTER_URL \
-  && mkdir -p $FLUTTER_HOME \
-  && tar xf flutter.tar.xz -C /home/$USER \
-  && rm flutter.tar.xz \
-  && flutter config --no-analytics --enable-web \
-  && flutter precache \
-  && yes "y" | flutter doctor --android-licenses \
-  && flutter doctor \
-  && flutter emulators --create \
-  && flutter update-packages
+RUN curl -o flutter.tar.xz $FLUTTER_URL
+RUN mkdir -p $FLUTTER_HOME
+RUN tar xf flutter.tar.xz -C /home/$USER
+RUN rm flutter.tar.xz
+RUN flutter config --no-analytics
+RUN flutter precache
+RUN sdkmanager --install "cmdline-tools;latest"
+RUN yes "y" | flutter doctor --android-licenses
+RUN flutter doctor
+RUN flutter emulators --create
+RUN flutter update-packages
 
 COPY entrypoint.sh /usr/local/bin/
 COPY chown.sh /usr/local/bin/
 COPY flutter-android-emulator.sh /usr/local/bin/flutter-android-emulator
-COPY flutter-web.sh /usr/local/bin/flutter-web
 ENTRYPOINT [ "/usr/local/bin/entrypoint.sh" ]

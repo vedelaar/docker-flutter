@@ -1,3 +1,6 @@
+# Why this fork?
+I needed to compile a flutter android app (viterium_wallet) and needed a more up-to-date version for it. If it doesn't work, try to run flutter clean first.
+
 # docker-flutter
 
 With this docker image you don't need to install the Flutter and Android SDK on your developer machine. Everything is ready to use inclusive an emulator device (Pixel with Android 9). With a shell alias you won't recognize a difference between the image and a local installation. If you are using VSCode you can also use this image as your devcontainer.
